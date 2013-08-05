@@ -5,9 +5,16 @@ Serial myPort;    // The serial port
 float[] sensorVals = new float[10];
 DataLine[] dataLines = new DataLine[sensorVals.length-1]; // exclude last sensorVals value as it's millis
 Button[] buttons = new Button[dataLines.length]; //make a button for each dataline
+Controller[] controllers = new Controller[dataLines.length]; //create controller objects for each button/line set
+
+float graphTop;
+float graphBot;
 
 void setup() { 
   size(1200, 800);
+  
+  graphTop = 30;
+  graphBot = height-30;
 
   // List all the available serial ports: 
   println(Serial.list()); 
@@ -17,80 +24,82 @@ void setup() {
   myPort = new Serial(this, Serial.list()[0], 38400); 
 
   for (int i=0; i<dataLines.length; i++) {
-    dataLines[i] = new DataLine(50, 40000, 10, 10, width-60, height-10);
+    dataLines[i] = new DataLine(50, 50000, 10, graphTop, width-60, graphBot);
     buttons[i] = new Button(width-50, i*75+50);
-    buttons[i].toggle(); //set buttons to true
-    color lineColor = color(0, 0, 0);
-    String lineName = "";
+    controllers[i] = new Controller(buttons[i], dataLines[i]);
+    controllers[i].setState(true); //turn all the controllers on
+    color displayColor = color(0, 0, 0);
+    String displayName = "";
     switch(i) {
     case 0:
-      lineColor = color(255, 0, 0);
-      lineName = "ax";
+      displayColor = color(255, 0, 0);
+      displayName = "ax";
       break;
     case 1:
-      lineColor = color(255, 100, 100);
-      lineName = "ay";
+      displayColor = color(255, 80, 80);
+      displayName = "ay";
       break;
     case 2:
-      lineColor = color(255, 200, 200);
-      lineName = "az";
+      displayColor = color(255, 160, 160);
+      displayName = "az";
       break;
     case 3:
-      lineColor = color(0, 255, 0);
-      lineName = "gx";
+      displayColor = color(0, 255, 0);
+      displayName = "gx";
       break;
     case 4:
-      lineColor = color(100, 255, 100);
-      lineName = "gy";
+      displayColor = color(100, 255, 100);
+      displayName = "gy";
       break;
     case 5:
-      lineColor = color(200, 255, 200);
-      lineName = "gz";
+      displayColor = color(200, 255, 200);
+      displayName = "gz";
       break;
     case 6:
-      lineColor = color(0, 0, 255);
-      lineName = "mx";
+      displayColor = color(0, 0, 255);
+      displayName = "mx";
       break;
     case 7:
-      lineColor = color(100, 100, 255);
-      lineName = "my";
+      displayColor = color(100, 100, 255);
+      displayName = "my";
       break;
     case 8:
-      lineColor = color(200, 200, 255);
-      lineName = "mz";
+      displayColor = color(200, 200, 255);
+      displayName = "mz";
       break;
     }
-    dataLines[i].setColor(lineColor);
-    dataLines[i].setName(lineName);
-    buttons[i].setLabel(lineName);
-    buttons[i].setColor(lineColor);
+    controllers[i].setColor(displayColor);
+    controllers[i].setName(displayName);
   }
 } 
 
 void draw() { 
-  background(255);        
+  background(150);
+  pushStyle();
+  noFill();
+  stroke(0);
+  strokeWeight(1);
+  line(0, graphTop, width, graphTop);
+  line(0, graphBot, width, graphBot);
+  popStyle();
   for (int i=0; i<sensorVals.length-1; i++) { //exclude last sensorVal as it's millis
-    dataLines[i].update(sensorVals[i]);
-    dataLines[i].display();
-    buttons[i].display();
+    controllers[i].setData(sensorVals[i]);
+    controllers[i].update();
+    controllers[i].display();
   }
 } 
 
 void serialEvent(Serial p) { 
   String inString = p.readStringUntil('\n');
   if (inString != null) {
-//    println (inString);
+    println (inString);
     sensorVals = float(split(inString, ','));
   }
 } 
 
 void mouseClicked() {
   for (int i=0; i<dataLines.length; i++) {
-    if (buttons[i].isClicked(mouseX, mouseY)) {
-      buttons[i].toggle();
-      dataLines[i].setVisible(buttons[i].isOn);
-      break;
-    }
+    controllers[i].checkButton(mouseX, mouseY); //check each controller to see its btton was clicked
   }
 }
 
