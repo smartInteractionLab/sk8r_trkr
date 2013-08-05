@@ -7,8 +7,14 @@ DataLine[] dataLines = new DataLine[sensorVals.length-1]; // exclude last sensor
 Button[] buttons = new Button[dataLines.length]; //make a button for each dataline
 Controller[] controllers = new Controller[dataLines.length]; //create controller objects for each button/line set
 
+float graphTop;
+float graphBot;
+
 void setup() { 
   size(1200, 800);
+  
+  graphTop = 30;
+  graphBot = height-30;
 
   // List all the available serial ports: 
   println(Serial.list()); 
@@ -18,7 +24,7 @@ void setup() {
   myPort = new Serial(this, Serial.list()[0], 38400); 
 
   for (int i=0; i<dataLines.length; i++) {
-    dataLines[i] = new DataLine(50, 40000, 10, 10, width-60, height-10);
+    dataLines[i] = new DataLine(50, 50000, 10, graphTop, width-60, graphBot);
     buttons[i] = new Button(width-50, i*75+50);
     controllers[i] = new Controller(buttons[i], dataLines[i]);
     controllers[i].setState(true); //turn all the controllers on
@@ -68,7 +74,14 @@ void setup() {
 } 
 
 void draw() { 
-  background(150);        
+  background(150);
+  pushStyle();
+  noFill();
+  stroke(0);
+  strokeWeight(1);
+  line(0, graphTop, width, graphTop);
+  line(0, graphBot, width, graphBot);
+  popStyle();
   for (int i=0; i<sensorVals.length-1; i++) { //exclude last sensorVal as it's millis
     controllers[i].setData(sensorVals[i]);
     controllers[i].update();
