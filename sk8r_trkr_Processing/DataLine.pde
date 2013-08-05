@@ -59,6 +59,7 @@ class DataLine {
   void drawLabel(String _name, float _xLoc, float _yLoc) {
     pushStyle();
     fill(displayCol);
+    textSize(30);
     text(_name, _xLoc, _yLoc);
     popStyle();
   }

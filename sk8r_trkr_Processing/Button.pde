@@ -15,20 +15,19 @@ class Button {
   void setLabel(String _label) {
     label = _label;
   }
-  
-  void setColor(color _color){
-    fillColor = _color;
-  }
 
-  void toggle() {
-    isOn = !isOn;
+  void setColor(color _color) {
+    fillColor = _color;
   }
 
   boolean isClicked(float _x, float _y) {
     if ((_x >= xPos && _x <= xPos+btnWidth) && (_y >= yPos && _y <= yPos+btnHeight)) {
+      isOn = !isOn;
       return true;
     }
-    else return false;
+    else {
+      return false;
+    }
   } 
 
   void display() {
