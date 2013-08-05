@@ -89,6 +89,8 @@ void setup() {
   // initialize MPU9150
   Serial.println("Initializing I2C devices...");
   accelgyro.initialize();
+  accelgyro.setFullScaleAccelRange(3);
+  Serial.println(accelgyro.getFullScaleAccelRange());
 
   // verify connection to MPU9150
   Serial.println("Testing device connections...");
