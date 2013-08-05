@@ -1,30 +1,48 @@
-import processing.serial.*; 
+import processing.video.*;
 
-Serial myPort;    // The serial port
+Movie logMovie;
+float movieTime;
 
-float[] sensorVals = new float[10];
+//import processing.serial.*; 
+
+//Serial myPort;    // The serial port
+
+BufferedReader logReader; //there is a lot of data so we'll read it in line by line.
+String line; //String to store each line from the text file created by the datalogger
+
+float[] sensorVals = new float[10]; //9 axes plus timestamp in millis
 DataLine[] dataLines = new DataLine[sensorVals.length-1]; // exclude last sensorVals value as it's millis
 Button[] buttons = new Button[dataLines.length]; //make a button for each dataline
 Controller[] controllers = new Controller[dataLines.length]; //create controller objects for each button/line set
 
-float graphTop;
-float graphBot;
+//convenience variables to define the dataLines
+float graphTop, graphBot, graphLeft, graphRight, midPoint;
+
+boolean canDraw;
 
 void setup() { 
   size(1200, 800);
+  canDraw = true;
   
-  graphTop = 30;
-  graphBot = height-30;
+//  selectInput("Choose a text file to parse", "logSelected");
 
-  // List all the available serial ports: 
-  println(Serial.list()); 
-  // I know that the first port in the serial list on my mac 
-  // is always my  Keyspan adaptor, so I open Serial.list()[0]. 
-  // Open whatever port is the one you're using. 
-  myPort = new Serial(this, Serial.list()[0], 38400); 
+  logMovie = new Movie(this, "IMG_1081.m4v");
+  logMovie.speed(12.0);
+  logMovie.loop();
+
+  graphTop = 30;
+  graphBot = 400;
+  graphLeft = 30;
+  graphRight = width-100;
+  midPoint = graphRight/2+graphLeft;
+
+  //  // List all the available serial ports: 
+  //  println(Serial.list()); 
+  //  // I know that the first port in the serial list on my mac 
+  //  myPort = new Serial(this, Serial.list()[0], 38400); 
 
   for (int i=0; i<dataLines.length; i++) {
-    dataLines[i] = new DataLine(50, 50000, 10, graphTop, width-60, graphBot);
+    dataLines[i] = new DataLine(50, 50000, graphLeft, graphTop, graphRight, graphBot);
     buttons[i] = new Button(width-50, i*75+50);
     controllers[i] = new Controller(buttons[i], dataLines[i]);
     controllers[i].setState(true); //turn all the controllers on
@@ -75,31 +93,87 @@ void setup() {
 
 void draw() { 
   background(150);
+  if (canDraw) {
+    drawBoundaries();
+    for (int i=0; i<sensorVals.length-1; i++) { //exclude last sensorVal as it's millis
+      controllers[i].setData(sensorVals[i]);
+      controllers[i].update();
+      controllers[i].display();
+    }
+    float movieHeight = height-graphBot-75;
+    float movieWidth = movieHeight*1920/1080;
+    image(logMovie, midPoint-(movieWidth/2), graphBot+50, movieWidth, movieHeight);
+  }
+} 
+
+void drawBoundaries() {
   pushStyle();
   noFill();
   stroke(0);
   strokeWeight(1);
-  line(0, graphTop, width, graphTop);
-  line(0, graphBot, width, graphBot);
+  rect(graphLeft, graphTop, graphRight, graphBot);
+  line(midPoint, graphTop, midPoint, graphBot+graphTop);
   popStyle();
-  for (int i=0; i<sensorVals.length-1; i++) { //exclude last sensorVal as it's millis
-    controllers[i].setData(sensorVals[i]);
-    controllers[i].update();
-    controllers[i].display();
-  }
-} 
+}
 
-void serialEvent(Serial p) { 
-  String inString = p.readStringUntil('\n');
-  if (inString != null) {
-    println (inString);
-    sensorVals = float(split(inString, ','));
-  }
-} 
 
 void mouseClicked() {
   for (int i=0; i<dataLines.length; i++) {
-    controllers[i].checkButton(mouseX, mouseY); //check each controller to see its btton was clicked
+    controllers[i].checkButton(mouseX, mouseY); //check each controller to see its button was clicked
   }
 }
+
+void movieEvent(Movie m) {
+  m.read();
+}
+
+//void serialEvent(Serial p) { 
+//  String inString = p.readStringUntil('\n');
+//  if (inString != null) {
+////    println (inString);
+//    sensorVals = float(split(inString, ','));
+//  }
+//} 
+
+
+//void logSelected(File _selection) {
+//  if (_selection == null) {
+//    println("A text '.txt'  file must be selected to parse!");
+//    selectInput("Choose a text file to parse", "logSelected");
+//  }
+//  else {
+//    String fileName = _selection.getName();
+//    String fileType = fileName.substring(fileName.length()-3, fileName.length());
+//    if (fileType.equals("TXT") || fileType.equals("txt")) { 
+//      logReader = createReader(_selection.getPath());
+//      println(_selection.getAbsolutePath());
+//      selectInput("Choose a Quicktime movie to sync", "movieSelected");
+//    }
+//    else {
+//      println("A text '.txt' file must be selected to parse!");
+//      selectInput("Choose a text file to parse", "logSelected");
+//    }
+//  }
+//}
+//
+//void movieSelected(File _selection) {
+//  if (_selection == null) {
+//    println("A Quicktime '.mov' file must be selected to sync!");
+//    selectInput("Choose a Quicktime '.mov' to sync", "movieSelected");
+//  }
+//  else {
+//    String fileName = _selection.getName();
+//    String fileType = fileName.substring(fileName.length()-3, fileName.length());
+//    if (fileType.equals("MOV") || fileType.equals("mov")) { 
+//      canDraw = true;
+//      println(_selection.getAbsolutePath());
+//      logMovie = new Movie(this, _selection.getPath());    
+//      logMovie.loop();
+//    }
+//    else {
+//      println("A Quicktime '.mov' file must be selected to sync!");
+//      selectInput("Choose a Quicktime to sync", "movieSelected");
+//    }
+//  }
+//}
 

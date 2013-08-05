@@ -47,7 +47,7 @@ class DataLine {
       strokeWeight(2);
       beginShape();
       for (int i=0; i<readings.length; i++) {
-        pointX = map(i, 0, readings.length, xPos, xPos+dispWidth);
+        pointX = map(i, 0, readings.length-1, xPos, xPos+dispWidth);
         pointY = map(readings[i], yLimit * -1, yLimit, yPos+dispHeight, yPos);
         if (i == 0) drawLabel(name, pointX, pointY);
         vertex(pointX, pointY);
