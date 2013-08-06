@@ -125,6 +125,7 @@ void mouseClicked() {
 
 void movieEvent(Movie m) {
   m.read();
+  movieTime = m.time() * 1000;
 }
 
 //void serialEvent(Serial p) { 
