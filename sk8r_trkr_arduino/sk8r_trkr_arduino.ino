@@ -102,6 +102,14 @@ void setup() {
   // output, even if you don't use it:
   pinMode(chipSelect, OUTPUT);
 
+  //initialize the button pin
+  pinMode(buttonPin, INPUT_PULLUP);  // initialize the button pin using internal pullup resistor.
+  attachInterrupt(buttonPin, logButtonPressed, LOW); // attach in interupt to the button pin
+
+  //set the flags
+  logState = false; //set the logging flag to false.
+  ledState = false;
+
   // see if the card is present and can be initialized:
   if (!SD.begin(chipSelect)) {
     Serial.println("SD card failed, or not present");
@@ -109,36 +117,30 @@ void setup() {
     return;
   }
   Serial.println("SD card initialized.");
-
-  logState = false; //set the logging flag to false.
-  ledState = false;
-
-  pinMode(buttonPin, INPUT_PULLUP);  // initialize the button pin using internal pullup resistor.
-
 }
 
 void loop() {
-//  Serial.print("log: ");
-//  Serial.println(logState);
-  // read buttonPin and set the log state
-  buttonBouncer.update();
-  if (buttonBouncer.fallingEdge()) {
-    logState = !logState;
-  }
-
+  //  Serial.print("log: ");
+  //  Serial.println(logState);
+  
   // make a string for assembling the data to log:
   String dataString = "";
+  unsigned long timeCounter = millis();
+  
+  while (millis()-timeCounter < 5000) {
 
-  // read raw accel/gyro measurements from device
-  accelgyro.getMotion9(&sensorVals[0], &sensorVals[1], &sensorVals[2], &sensorVals[3], &sensorVals[4], &sensorVals[5], &sensorVals[6], &sensorVals[7], &sensorVals[8]);
+    // read raw accel/gyro measurements from device
+    accelgyro.getMotion9(&sensorVals[0], &sensorVals[1], &sensorVals[2], &sensorVals[3], &sensorVals[4], &sensorVals[5], &sensorVals[6], &sensorVals[7], &sensorVals[8]);
 
-  // build the string that will be written to the datalog file.
-  for (int i=0; i<9; i++){
-    dataString += sensorVals[i];
-    dataString += ",";
+    // build the string that will be written to the datalog file.
+    for (int i=0; i<9; i++){
+      dataString += sensorVals[i];
+      dataString += ",";
+    }
+    dataString += millis();
+    dataString += "\n";
+    Serial.println(dataString);
   }
-  dataString += millis();
-  Serial.println(dataString);
 
   if (logState) {
     // open the file. note that only one file can be open at a time,
@@ -150,7 +152,7 @@ void loop() {
       dataFile.println(dataString);
       dataFile.close();
       // print to the serial port too:
-//      Serial.println(dataString);
+      //      Serial.println(dataString);
     }  
     // if the file isn't open, pop up an error:
     else {
@@ -158,6 +160,16 @@ void loop() {
     }
   }
 }
+
+void logButtonPressed() {
+  // read buttonPin and set the log state
+  buttonBouncer.update();
+  if (buttonBouncer.fallingEdge()) {
+    logState = !logState;
+  }
+}
+
+
 
 
 
