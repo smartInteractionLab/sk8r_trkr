@@ -1,57 +1,46 @@
 class Controller {
-  Button button;
-  DataLine dataLine;
-  boolean isOn;
-  String name;
-  color myColor;
-  float dataPoint;
+  Button[] buttons;
+  DataLine[] dataLines;
+  float channelCount, xPos, yPos, cWidth, cHeight, dWidth;
+  //displayLine variablexs
+  float dXpos, dYpos, dWidth, dHeight, dRawMax;
+  //button variables
+  float bXpos, bYpos, bWidth, bHeight;
 
-  Controller(Button _button, DataLine _dataLine) {
-    button = _button;
-    dataLine = _dataLine;
-    isOn = false;
-    name = "Controller";
-    myColor = color(0, 0, 0);
-    dataPoint = 0;
-  }
+  long millisNow;
+  long totalPoints;
+  Table dataTable;
 
-  void setState(boolean _state) {
-    isOn = _state;
-    button.isOn = isOn;
-    dataLine.isVisible = isOn;
-  }
-
-  void update() {
-    button.isOn = isOn; //set the controller to the same state as the button
-    dataLine.isVisible = isOn; //set the dataLine to the same state as the controller
-    dataLine.update(dataPoint);
-  }
-
-  void display() {
-    button.display();
-    dataLine.display();
-  }
-
-  void setName(String _name) {
-    name = _name;
-    button.setLabel(name);
-    dataLine.setName(name);
-  }
-
-  void setColor(color _color) {
-    myColor = _color;
-    button.setColor(myColor);
-    dataLine.setColor(myColor);
-  }
-
-  void checkButton(float _x, float _y) {
-    if (button.isClicked(_x, _y)) {
-      isOn = !isOn; //toggle state
+  Controller(float _x, float _y, float _w, float _h) {
+    channelCount = 9; // per 9dof sensor
+    dataLines = new DataLine[channelCount];
+    buttons = new Button[channelCount];
+    xPos = _x;
+    yPos = _y;
+    cWidth = _w;
+    cHeight = _h;
+    dWidth = cWidth-50+xPos;    
+    for (int i=0; i<channelCount; i++) {
+      dataLines[i] = new DataLine(50, 40000);
+      buttons[i] = new Button();
     }
   }
 
-  void setData(float _val) {
-    dataPoint = _val;
+  void parseData(String _dataFile) {
+    dataTable = loadTable(_dataFile);
+    totalPoints = dataTable.getRowCount();
+    println("data points: " + totalPoints);
+  }
+  
+  void drawFrame(){
+    pushStyle();
+    noFill();
+    stroke(0);
+    strokeWeight(1);
+    rect(xPos, yPos, dWidth, cHeight); //draw a rectangle around the display line area
+    float midPoint = (dWidth/2)+xPos;
+    line(midPoint, yPos, midPoint, cHeight-yPos);
+    popStyle();
   }
 }
 

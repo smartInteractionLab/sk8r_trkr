@@ -78,7 +78,6 @@ const int chipSelect = 10;
 const int buttonPin = 4;
 
 boolean logState;
-boolean ledState;
 
 Bounce buttonBouncer = Bounce(buttonPin, 5);
 
@@ -88,13 +87,16 @@ void setup() {
 
   // initialize MPU9150
   Serial.println("Initializing I2C devices...");
+  delay(100);
   accelgyro.initialize();
-  accelgyro.setFullScaleAccelRange(3);
-  Serial.println(accelgyro.getFullScaleAccelRange());
+
 
   // verify connection to MPU9150
   Serial.println("Testing device connections...");
   Serial.println(accelgyro.testConnection() ? "MPU9150 connection successful" : "MPU9150 connection failed");
+
+  accelgyro.setFullScaleAccelRange(3);
+
 
   // initialize SD card
   Serial.print("Initializing SD card...");
@@ -108,7 +110,6 @@ void setup() {
 
   //set the flags
   logState = false; //set the logging flag to false.
-  ledState = false;
 
   // see if the card is present and can be initialized:
   if (!SD.begin(chipSelect)) {
@@ -122,12 +123,12 @@ void setup() {
 void loop() {
   //  Serial.print("log: ");
   //  Serial.println(logState);
-  
+
   // make a string for assembling the data to log:
   String dataString = "";
   unsigned long timeCounter = millis();
-  
-  while (millis()-timeCounter < 5000) {
+
+  while (millis()-timeCounter < 2000) {
 
     // read raw accel/gyro measurements from device
     accelgyro.getMotion9(&sensorVals[0], &sensorVals[1], &sensorVals[2], &sensorVals[3], &sensorVals[4], &sensorVals[5], &sensorVals[6], &sensorVals[7], &sensorVals[8]);
@@ -139,17 +140,17 @@ void loop() {
     }
     dataString += millis();
     dataString += "\n";
-    Serial.println(dataString);
+//    Serial.print(dataString);
   }
 
   if (logState) {
     // open the file. note that only one file can be open at a time,
     // so you have to close this one before opening another.
-    File dataFile = SD.open("log.txt", FILE_WRITE);
+    File dataFile = SD.open("log.csv", FILE_WRITE);
 
     // if the file is available, write to it:
     if (dataFile) {
-      dataFile.println(dataString);
+      dataFile.print(dataString);
       dataFile.close();
       // print to the serial port too:
       //      Serial.println(dataString);
@@ -168,6 +169,7 @@ void logButtonPressed() {
     logState = !logState;
   }
 }
+
 
 
 

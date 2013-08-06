@@ -4,12 +4,8 @@ class Button {
   String label = "";
   color fillColor = color(255, 255, 255);
 
-  Button(float _xPos, float _yPos) {
-    xPos = _xPos;
-    yPos = _yPos;
-    btnHeight = 35;
-    btnWidth = 35;
-    isOn = false;
+  Button() {
+    isOn = true;
   }
 
   void setLabel(String _label) {

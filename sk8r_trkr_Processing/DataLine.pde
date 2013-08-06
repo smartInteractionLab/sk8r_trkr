@@ -9,13 +9,9 @@ class DataLine {
   String name = "";
   boolean isVisible;
 
-  DataLine(int _readingsCount, float _yLimit, float _xPos, float _yPos, float _dispWidth, float _dispHeight) {
+  DataLine(int _readingsCount, float _yLimit) {
     readings = new float[_readingsCount];
     yLimit = _yLimit;
-    dispWidth = _dispWidth;
-    dispHeight = _dispHeight;
-    xPos = _xPos;
-    yPos = _yPos;
     isVisible = true;
   }
 
@@ -40,15 +36,15 @@ class DataLine {
     readings[readings.length-1] = _newVal; // push new value at end of array
   }
 
-  void display() {
+  void display(float _xPos, float _yPos, float _dispWidth, float _dispHeight) {
     if (isVisible) {
       noFill();
       stroke(displayCol);
       strokeWeight(2);
       beginShape();
       for (int i=0; i<readings.length; i++) {
-        pointX = map(i, 0, readings.length-1, xPos, xPos+dispWidth);
-        pointY = map(readings[i], yLimit * -1, yLimit, yPos+dispHeight, yPos);
+        pointX = map(i, 0, readings.length-1, _xPos, _xPos+_dispWidth);
+        pointY = map(readings[i], yLimit * -1, yLimit, _yPos+_dispHeight, _yPos);
         if (i == 0) drawLabel(name, pointX, pointY);
         vertex(pointX, pointY);
       }
