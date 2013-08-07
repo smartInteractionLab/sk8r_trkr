@@ -115,9 +115,15 @@ void setup() {
   if (!SD.begin(chipSelect)) {
     Serial.println("SD card failed, or not present");
     // don't do anything more:
-    return;
   }
-  Serial.println("SD card initialized.");
+  else{
+    Serial.println("SD card initialized.");
+    File dataFile = SD.open("log.csv", FILE_WRITE);
+    if (dataFile) {
+      dataFile.println("Board restarted");
+      dataFile.close();
+    }
+  }
 }
 
 void loop() {
@@ -140,7 +146,7 @@ void loop() {
     }
     dataString += millis();
     dataString += "\n";
-//    Serial.print(dataString);
+    //    Serial.print(dataString);
   }
 
   if (logState) {
@@ -158,6 +164,7 @@ void loop() {
     // if the file isn't open, pop up an error:
     else {
       Serial.println("error opening log file");
+
     }
   }
 }
@@ -169,6 +176,9 @@ void logButtonPressed() {
     logState = !logState;
   }
 }
+
+
+
 
 
 
