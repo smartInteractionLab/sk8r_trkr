@@ -1,8 +1,9 @@
 class Controller {
   Button[] buttons;
   DataLine[] dataLines;
-  float channelCount, xPos, yPos, cWidth, cHeight, dWidth;
-  //displayLine variablexs
+  FloatList millis;
+  float channelCount, xPos, yPos, cWidth, cHeight, dWidth, dHeight;
+  //displayLine variables
   float dXpos, dYpos, dWidth, dHeight, dRawMax;
   //button variables
   float bXpos, bYpos, bWidth, bHeight;
@@ -19,9 +20,10 @@ class Controller {
     yPos = _y;
     cWidth = _w;
     cHeight = _h;
-    dWidth = cWidth-50+xPos;    
+    dWidth = cWidth-50;    
+    dHeight = cHeight-15;
     for (int i=0; i<channelCount; i++) {
-      dataLines[i] = new DataLine(50, 40000);
+      dataLines[i] = new DataLine();
       buttons[i] = new Button();
     }
   }
@@ -30,9 +32,15 @@ class Controller {
     dataTable = loadTable(_dataFile);
     totalPoints = dataTable.getRowCount();
     println("data points: " + totalPoints);
+    for (TableRow row : dataTable.rows()) {
+      for (int dataLine : dataLines) {
+        dataLine.setData(row.getFloat(i));
+      }
+      millis.append(row.getFloat(10));
+    }
   }
-  
-  void drawFrame(){
+
+  void drawFrame() {
     pushStyle();
     noFill();
     stroke(0);
