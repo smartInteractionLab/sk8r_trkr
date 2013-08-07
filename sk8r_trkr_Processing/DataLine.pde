@@ -1,5 +1,5 @@
 class DataLine {
-  float[] readings;
+  FloatList readings;
   color displayCol = color(0, 0, 0);
   float yLimit, dispWidth, dispHeight, xPos, yPos;
   float minVal = 0;
@@ -9,9 +9,7 @@ class DataLine {
   String name = "";
   boolean isVisible;
 
-  DataLine(int _readingsCount, float _yLimit) {
-    readings = new float[_readingsCount];
-    yLimit = _yLimit;
+  DataLine(){
     isVisible = true;
   }
 
@@ -26,6 +24,13 @@ class DataLine {
   void setName(String _name) {
     name = _name;
   }
+  
+  void setData(float _data){
+    readings.append(_data);
+  }
+    
+    
+    
 
   void update(float _newVal) {
     for (int i=0; i<readings.length-1; i++) { // shift all array values down one index
