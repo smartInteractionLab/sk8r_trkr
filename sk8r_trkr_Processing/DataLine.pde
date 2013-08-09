@@ -6,10 +6,10 @@ class DataLine {
   float maxVal = 0;
   float pointX = 0;
   float pointY = 0;
-  String name = "";
+  String label = "";
   boolean isVisible;
 
-  DataLine(){
+  DataLine() {
     isVisible = true;
   }
 
@@ -21,17 +21,14 @@ class DataLine {
     isVisible = _isVisible;
   }
 
-  void setName(String _name) {
-    name = _name;
+  void setLabel(String _name) {
+    label = _name;
   }
-  
-  void setData(float _data){
+
+  void setData(float _data) {
     readings.append(_data);
   }
-    
-    
-    
-
+  
   void update(float _newVal) {
     for (int i=0; i<readings.length-1; i++) { // shift all array values down one index
       if (readings[i] < minVal) minVal = readings[i];
@@ -41,7 +38,7 @@ class DataLine {
     readings[readings.length-1] = _newVal; // push new value at end of array
   }
 
-  void display(float _xPos, float _yPos, float _dispWidth, float _dispHeight) {
+  void display(float _xPos, float _yPos, float _dispWidth, float _dispHeight, float _dispReadings) {
     if (isVisible) {
       noFill();
       stroke(displayCol);
@@ -50,18 +47,18 @@ class DataLine {
       for (int i=0; i<readings.length; i++) {
         pointX = map(i, 0, readings.length-1, _xPos, _xPos+_dispWidth);
         pointY = map(readings[i], yLimit * -1, yLimit, _yPos+_dispHeight, _yPos);
-        if (i == 0) drawLabel(name, pointX, pointY);
+        if (i == 0) drawLabel(label, pointX, pointY);
         vertex(pointX, pointY);
       }
       endShape();
     }
   }
 
-  void drawLabel(String _name, float _xLoc, float _yLoc) {
+  void drawLabel(String _label, float _xLoc, float _yLoc) {
     pushStyle();
     fill(displayCol);
     textSize(30);
-    text(_name, _xLoc, _yLoc);
+    text(_label, _xLoc, _yLoc);
     popStyle();
   }
 }

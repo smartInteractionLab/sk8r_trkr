@@ -7,6 +7,16 @@ class Button {
   Button() {
     isOn = true;
   }
+  
+  void setSize(float _width, float _height) {
+    btnWidth = _width;
+    btnHeight = _height;
+  }
+  
+  void setPos(float _xPos, float _yPos) {
+    xPos = _xPos;
+    yPos = _ypos;
+  }
 
   void setLabel(String _label) {
     label = _label;

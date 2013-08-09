@@ -5,12 +5,46 @@ class Controller {
   float channelCount, xPos, yPos, cWidth, cHeight, dWidth, dHeight;
   //displayLine variables
   float dXpos, dYpos, dWidth, dHeight, dRawMax;
-  //button variables
-  float bXpos, bYpos, bWidth, bHeight;
+  String[] labels = {
+    "ax", "ay", "az", "gx", "gy", "gz", "mx", "my", "mz"
+  }; 
+  int[][] colors = {
+    {
+      255, 0, 0
+    }
+    , {
+      255, 80, 80
+    }
+    , {
+      255, 160, 160
+    }
+    , 
+    {
+      0, 255, 0
+    }
+    , {
+      80, 255, 80
+    }
+    , {
+      160, 255, 160
+    }
+    , 
+    {
+      0, 0, 255
+    }
+    , {
+      80, 80, 255
+    }
+    , {
+      160, 160, 255
+    }
+  }
 
   long millisNow;
   long totalPoints;
   Table dataTable;
+  
+  long millisStart, millisEnd; //values to control start and end of dataset
 
   Controller(float _x, float _y, float _w, float _h) {
     channelCount = 9; // per 9dof sensor
@@ -26,6 +60,27 @@ class Controller {
       dataLines[i] = new DataLine();
       buttons[i] = new Button();
     }
+    setDataLines();
+    setButtons();
+    parseData("log.csv");
+  }
+
+  void setDataLines() {
+    for (int i=0; i<dataLines.length; i++) {
+      dataLines[i].setLabel(labels[i]);
+      dataLines[i].setColor(color(colors[i]));
+    }
+  }
+
+  void setButtons() {
+    float _xPos = xPos+dWidth+7.5;
+    float _yPos = yPos+7;
+    for (int i=0; i<buttons.length; i++) {
+      _yPos += i*40;
+      buttons[i].setPos(_xPos, _yPos);
+      buttons[i].setLabel(labels[i]);
+      buttons[i].setColor(color(colors[i]));
+    }
   }
 
   void parseData(String _dataFile) {
@@ -38,6 +93,15 @@ class Controller {
       }
       millis.append(row.getFloat(10));
     }
+  }
+  
+  void drawSlider() {
+    pushStyle();
+    fill(50);
+    rect(xPos, yPos, dWidth, 25);
+    
+
+  void drawDataLines() {
   }
 
   void drawFrame() {
